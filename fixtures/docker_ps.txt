@@ -1,0 +1,5 @@
+CONTAINER ID   IMAGE                    COMMAND                  CREATED        STATUS                  PORTS                                       NAMES
+3f2a1b9c8d7e   nginx:1.25               "/docker-entrypoint.…"   2 hours ago    Up 2 hours              0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp    web
+9a8b7c6d5e4f   postgres:16              "docker-entrypoint.s…"   3 days ago     Up 3 days (healthy)     5432/tcp                                    db
+1c2d3e4f5a6b   redis:7-alpine           "docker-entrypoint.s…"   3 days ago     Up 3 days               6379/tcp                                    cache
+7e8f9a0b1c2d   myapp/worker:latest      "python worker.py"       5 minutes ago  Restarting (1) 10 seconds ago                                       worker

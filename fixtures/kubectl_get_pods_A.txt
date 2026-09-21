@@ -1,0 +1,6 @@
+NAMESPACE     NAME                                   READY   STATUS    RESTARTS   AGE
+default       api-759db6c8f4-x2k9p                   1/1     Running   0          2d
+default       worker-29skd                           1/1     Running   3          12h
+kube-system   coredns-5d78c9869d-abcde               1/1     Running   0          20d
+monitoring    prometheus-0                           2/2     Running   0          20d
+monitoring    grafana-7c8f9d6b5-q7w8e                0/1     CrashLoopBackOff   12         3h

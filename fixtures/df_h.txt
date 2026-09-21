@@ -1,0 +1,6 @@
+Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on
+/dev/disk3s1s1   460Gi    13Gi   136Gi     9%    484k  1.4G    0%   /
+devfs            201Ki   201Ki     0Bi   100%     694     0  100%   /dev
+/dev/disk3s6     460Gi    24Ki   136Gi     1%       0  1.4G    0%   /System/Volumes/VM
+/dev/disk3s2     460Gi    10Gi   136Gi     7%    1.0k  1.4G    0%   /System/Volumes/Preboot
+/dev/disk3s4     460Gi    80Mi   136Gi     1%     109  1.4G    0%   /System/Volumes/Update
