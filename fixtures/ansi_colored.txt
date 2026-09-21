@@ -1,0 +1,5 @@
+[1mNAME                          READY   STATUS      RESTARTS   AGE[0m
+api-759db6c8f4-x2k9p          [32m1/1[0m     [32mRunning[0m     0          2d
+worker-5f7c9d8b6-abcde        [32m1/1[0m     [32mRunning[0m     3          12h
+grafana-7c8f9d6b5-q7w8e       [31m0/1[0m     [31mError[0m       7          3h
+prometheus-0                  [32m2/2[0m     [32mRunning[0m     0          20d

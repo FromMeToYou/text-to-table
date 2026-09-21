@@ -1,0 +1,5 @@
+host	service	status	latency_ms
+web-01	nginx	ok	12
+web-02	nginx	ok	18
+db-01	postgres	degraded	241
+cache-01	redis	ok	3

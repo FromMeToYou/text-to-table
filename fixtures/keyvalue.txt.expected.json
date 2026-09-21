@@ -1,0 +1,14 @@
+{
+  "format": "none",
+  "hasHeader": false,
+  "columns": [
+    "Column 1"
+  ],
+  "rowCount": 3,
+  "sample": {
+    "row": 0,
+    "cells": [
+      "host=web-01 status=200 bytes=5120 dur=0.842"
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "format": "pipe",
+  "hasHeader": true,
+  "columns": [
+    "Region",
+    "Instances",
+    "Monthly cost",
+    "Owner"
+  ],
+  "rowCount": 3,
+  "sample": {
+    "row": 0,
+    "cells": [
+      "us-east-1",
+      "42",
+      "$12,480",
+      "platform"
+    ]
+  }
+}

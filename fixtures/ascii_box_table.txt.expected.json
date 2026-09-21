@@ -1,0 +1,18 @@
+{
+  "format": "pipe",
+  "hasHeader": true,
+  "columns": [
+    "NAME",
+    "STATUS",
+    "CPU"
+  ],
+  "rowCount": 3,
+  "sample": {
+    "row": 0,
+    "cells": [
+      "api-01",
+      "Running",
+      "12%"
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "format": "aligned",
+  "hasHeader": true,
+  "columns": [
+    "Proto",
+    "Recv-Q",
+    "Send-Q",
+    "Local Address",
+    "Foreign Address",
+    "(state)"
+  ],
+  "rowCount": 6,
+  "sample": {
+    "row": 0,
+    "cells": [
+      "tcp4",
+      "0",
+      "0",
+      "192.168.0.52.49652",
+      "149.154.166.110.443",
+      "ESTABLISHED"
+    ]
+  }
+}

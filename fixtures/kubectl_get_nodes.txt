@@ -1,0 +1,5 @@
+NAME                STATUS     ROLES           AGE    VERSION
+ip-10-0-1-21        Ready      control-plane   142d   v1.29.4
+ip-10-0-1-88        Ready      <none>          142d   v1.29.4
+ip-10-0-2-140       Ready      <none>          97d    v1.29.4
+ip-10-0-2-7         NotReady   <none>          12d    v1.28.9

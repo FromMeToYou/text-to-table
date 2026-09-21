@@ -1,0 +1,5 @@
+{"ts":"2026-09-21T10:23:01Z","level":"info","service":"api","msg":"request ok","dur_ms":12}
+{"ts":"2026-09-21T10:23:02Z","level":"warn","service":"api","msg":"slow query","dur_ms":842}
+{"ts":"2026-09-21T10:23:05Z","level":"error","service":"worker","msg":"job failed","dur_ms":31,"tags":["retry","db"]}
+{"ts":"2026-09-21T10:23:09Z","level":"info","service":"worker","msg":"job ok","dur_ms":27}
+{"ts":"2026-09-21T10:23:14Z","level":"info","service":"api","msg":"request ok","dur_ms":9}

@@ -1,0 +1,20 @@
+{
+  "format": "semicolon",
+  "hasHeader": true,
+  "columns": [
+    "artikel",
+    "menge",
+    "preis",
+    "lager"
+  ],
+  "rowCount": 4,
+  "sample": {
+    "row": 0,
+    "cells": [
+      "Schrauben M4",
+      "120",
+      "3,50",
+      "Berlin"
+    ]
+  }
+}

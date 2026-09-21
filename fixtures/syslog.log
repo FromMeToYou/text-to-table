@@ -1,0 +1,3 @@
+Sep 21 10:23:01 macbook kernel[0]: AppleACPICPU: ProcessorId=1 LocalApicId=2 Enabled
+Sep 21 10:23:04 macbook com.apple.xpc.launchd[1] (com.apple.mdworker.shared): Service exited
+Sep 21 10:24:11 macbook sudo[4821]: wonkyu : TTY=ttys003 ; PWD=/Users/wonkyu ; USER=root

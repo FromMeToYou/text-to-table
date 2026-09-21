@@ -1,0 +1,24 @@
+{
+  "format": "aligned",
+  "hasHeader": true,
+  "columns": [
+    "NAMESPACE",
+    "NAME",
+    "READY",
+    "STATUS",
+    "RESTARTS",
+    "AGE"
+  ],
+  "rowCount": 5,
+  "sample": {
+    "row": 0,
+    "cells": [
+      "default",
+      "api-759db6c8f4-x2k9p",
+      "1/1",
+      "Running",
+      "0",
+      "2d"
+    ]
+  }
+}

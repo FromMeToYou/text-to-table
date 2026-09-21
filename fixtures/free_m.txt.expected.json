@@ -1,0 +1,26 @@
+{
+  "format": "aligned",
+  "hasHeader": true,
+  "columns": [
+    "",
+    "total",
+    "used",
+    "free",
+    "shared",
+    "buff/cache",
+    "available"
+  ],
+  "rowCount": 2,
+  "sample": {
+    "row": 0,
+    "cells": [
+      "Mem:",
+      "7938",
+      "2129",
+      "3079",
+      "122",
+      "2729",
+      "5262"
+    ]
+  }
+}

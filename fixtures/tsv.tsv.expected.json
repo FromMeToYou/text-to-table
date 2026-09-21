@@ -1,0 +1,20 @@
+{
+  "format": "tab",
+  "hasHeader": true,
+  "columns": [
+    "host",
+    "service",
+    "status",
+    "latency_ms"
+  ],
+  "rowCount": 4,
+  "sample": {
+    "row": 0,
+    "cells": [
+      "web-01",
+      "nginx",
+      "ok",
+      "12"
+    ]
+  }
+}

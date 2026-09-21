@@ -1,0 +1,24 @@
+{
+  "format": "aligned",
+  "hasHeader": true,
+  "columns": [
+    "State",
+    "Recv-Q",
+    "Send-Q",
+    "Local Address:Port",
+    "Peer Address:Port",
+    "Process"
+  ],
+  "rowCount": 5,
+  "sample": {
+    "row": 0,
+    "cells": [
+      "LISTEN",
+      "0",
+      "4096",
+      "127.0.0.1:5432",
+      "0.0.0.0:*",
+      "users:((\"postgres\",pid=1234,fd=7))"
+    ]
+  }
+}

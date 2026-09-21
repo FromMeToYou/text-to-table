@@ -1,0 +1,3 @@
+host=web-01 status=200 bytes=5120 dur=0.842
+host=web-02 status=404 bytes=180 dur=0.011
+host=db-01 status=500 bytes=0 dur=2.310

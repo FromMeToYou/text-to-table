@@ -1,0 +1,30 @@
+{
+  "format": "aligned",
+  "hasHeader": true,
+  "columns": [
+    "Filesystem",
+    "Size",
+    "Used",
+    "Avail",
+    "Capacity",
+    "iused",
+    "ifree",
+    "%iused",
+    "Mounted on"
+  ],
+  "rowCount": 5,
+  "sample": {
+    "row": 0,
+    "cells": [
+      "/dev/disk3s1s1",
+      "460Gi",
+      "13Gi",
+      "136Gi",
+      "9%",
+      "484k",
+      "1.4G",
+      "0%",
+      "/"
+    ]
+  }
+}

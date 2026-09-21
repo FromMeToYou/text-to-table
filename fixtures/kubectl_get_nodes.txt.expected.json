@@ -1,0 +1,22 @@
+{
+  "format": "aligned",
+  "hasHeader": true,
+  "columns": [
+    "NAME",
+    "STATUS",
+    "ROLES",
+    "AGE",
+    "VERSION"
+  ],
+  "rowCount": 4,
+  "sample": {
+    "row": 0,
+    "cells": [
+      "ip-10-0-1-21",
+      "Ready",
+      "control-plane",
+      "142d",
+      "v1.29.4"
+    ]
+  }
+}

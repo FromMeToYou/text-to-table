@@ -1,0 +1,20 @@
+{
+  "format": "comma",
+  "hasHeader": true,
+  "columns": [
+    "name",
+    "note",
+    "amount",
+    "city"
+  ],
+  "rowCount": 3,
+  "sample": {
+    "row": 0,
+    "cells": [
+      "Smith, John",
+      "He said \"hi\" twice",
+      "1200",
+      "Seoul"
+    ]
+  }
+}

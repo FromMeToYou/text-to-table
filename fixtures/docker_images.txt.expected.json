@@ -1,0 +1,22 @@
+{
+  "format": "aligned",
+  "hasHeader": true,
+  "columns": [
+    "REPOSITORY",
+    "TAG",
+    "IMAGE ID",
+    "CREATED",
+    "SIZE"
+  ],
+  "rowCount": 4,
+  "sample": {
+    "row": 0,
+    "cells": [
+      "nginx",
+      "1.25",
+      "a1b2c3d4e5f6",
+      "3 weeks ago",
+      "187MB"
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "format": "none",
+  "hasHeader": false,
+  "columns": [
+    "Column 1"
+  ],
+  "rowCount": 3,
+  "sample": {
+    "row": 0,
+    "cells": [
+      "Sep 21 10:23:01 macbook kernel[0]: AppleACPICPU: ProcessorId=1 LocalApicId=2 Enabled"
+    ]
+  }
+}
