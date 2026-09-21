@@ -1,0 +1,18 @@
+{
+  "format": "comma",
+  "hasHeader": false,
+  "columns": [
+    "Column 1",
+    "Column 2",
+    "Column 3"
+  ],
+  "rowCount": 3,
+  "sample": {
+    "row": 0,
+    "cells": [
+      "1",
+      "2",
+      "3"
+    ]
+  }
+}

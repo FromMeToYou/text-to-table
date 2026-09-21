@@ -1,5 +1,5 @@
 /** Export a ParseResult to the formats the UI offers. */
-import type { ParseResult } from "./types";
+import type { ColumnType, ParseResult } from "./types";
 
 function needsQuote(cell: string, delimiter: string): boolean {
   return (
@@ -51,6 +51,18 @@ export function toJSON(r: ParseResult): string {
   return JSON.stringify(objects, null, 2);
 }
 
+// ponytail: only a bare numeric literal becomes a real spreadsheet number.
+// "1,234", "12%" and "1.2G" stay text so the cell reads exactly as it did on
+// screen. Ceiling: a thousands-separated number column will not sum in Excel.
+const PLAIN_NUMBER_RE = /^[-+]?\d+(?:\.\d+)?$/;
+
+function xlsxCell(value: string, type: ColumnType): string | number {
+  const v = (value ?? "").trim();
+  if (type !== "number" || v === "" || !PLAIN_NUMBER_RE.test(v)) return value ?? "";
+  const n = Number(v);
+  return Number.isFinite(n) ? n : value;
+}
+
 /**
  * Returns .xlsx bytes (browser Blob-ready). Uses exceljs's writeBuffer so no
  * Node fs is touched and the same call works in the browser bundle.
@@ -60,7 +72,9 @@ export async function toXLSX(r: ParseResult): Promise<Uint8Array> {
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("Sheet1");
   sheet.addRow(r.columns.map((c) => c.name));
-  for (const row of r.rows) sheet.addRow(row.map((c) => c ?? ""));
+  for (const row of r.rows) {
+    sheet.addRow(r.columns.map((c, j) => xlsxCell(row[j], c.type)));
+  }
   const buffer = await workbook.xlsx.writeBuffer();
   return new Uint8Array(buffer as ArrayBuffer);
 }

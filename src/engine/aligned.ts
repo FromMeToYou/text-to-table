@@ -138,8 +138,16 @@ function build(lines: string[], minGap: number, n: number): AlignedTable | null 
     if (toks[r].length === n) {
       toks[r].forEach((t, j) => groups[j].push(t));
     } else {
-      for (const t of toks[r]) {
-        for (const piece of resplit(t, ranges)) groups[assign(piece, ranges)].push(piece);
+      const pieces = toks[r].flatMap((t) => resplit(t, ranges));
+      // ponytail: once the re-split pieces number exactly n, order says more than
+      // position does -- a row shifted left by a grown value ("node-worker2
+      // NotReady <none>   98d") lands in the right columns this way and would
+      // otherwise collide on a distance tie. Ceiling: a row with n pieces but a
+      // genuinely empty middle column is mapped one column too far left.
+      if (pieces.length === n) {
+        pieces.forEach((t, j) => groups[j].push(t));
+      } else {
+        for (const piece of pieces) groups[assign(piece, ranges)].push(piece);
       }
     }
     const row: string[] = new Array<string>(n).fill("");
