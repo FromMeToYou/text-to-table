@@ -1,17 +1,44 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #ffffff;
+  --fg: #171717;
+  --muted: #666666;
+  --border: #dddddd;
+  --border-strong: #bbbbbb;
+  --accent: #1a56db;
+  --header-bg: #f7f7f8;
+  --zebra: #fafafa;
+  --chip-bg: #f2f2f3;
+  --chip-border: #d8d8da;
+  --toast-bg: #171717;
+  --toast-fg: #ffffff;
+  --danger: #b42318;
+
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #111113;
+    --fg: #ededed;
+    --muted: #9a9a9f;
+    --border: #303034;
+    --border-strong: #45454a;
+    --accent: #6ea8fe;
+    --header-bg: #1a1a1d;
+    --zebra: #17171a;
+    --chip-bg: #1c1c1f;
+    --chip-border: #303034;
+    --toast-bg: #ededed;
+    --toast-fg: #171717;
+    --danger: #ff8a80;
   }
 }
 
-html {
-  height: 100%;
+* {
+  box-sizing: border-box;
 }
 
 html,
@@ -20,30 +47,431 @@ body {
   overflow-x: hidden;
 }
 
+html {
+  height: 100%;
+  color-scheme: light dark;
+}
+
 body {
   min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  color: var(--fg);
+  background: var(--bg);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
 a {
-  color: inherit;
-  text-decoration: none;
+  color: var(--accent);
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  color: inherit;
+}
+
+.appShell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 100vh;
+}
+
+/* Header */
+
+.siteHeader h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.siteHeader .subtitle {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.privacyLine {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Main content */
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.textInput {
+  width: 100%;
+  min-height: 220px;
+  resize: vertical;
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.textInput:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+.largeInputWarning,
+.parseError {
+  margin: 0;
+  font-size: 13px;
+  color: var(--danger);
+}
+
+/* Detection bar */
+
+.detectionBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.detectionSummary {
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.detectionFormatSelect,
+.detectionHeaderCheckbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+}
+
+.detectionFormatSelect select {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 6px;
+  background: var(--bg);
+  font-size: 13px;
+}
+
+.detectionHeaderCheckbox {
+  cursor: pointer;
+}
+
+/* Toolbar */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--bg);
+  font-size: 13px;
+}
+
+.searchInput:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+/* Export menu */
+
+.exportMenu {
+  position: relative;
+  flex: none;
+}
+
+.exportTrigger {
+  padding: 8px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--bg);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.exportTrigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.exportDropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 20;
+  min-width: 190px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+.exportDropdown button {
+  text-align: left;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--fg);
+}
+
+.exportDropdown button:hover {
+  background: var(--header-bg);
+}
+
+.exportDivider {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--border);
+}
+
+.toast {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 30;
+  background: var(--toast-bg);
+  color: var(--toast-fg);
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+/* Table */
+
+.tableWrap {
+  max-height: 60vh;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.tableGrid {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  min-width: 100%;
+}
+
+.tableHeaderRow {
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.tableHeaderCell {
+  position: relative;
+  flex: none;
+  border-right: 1px solid var(--border);
+}
+
+.tableHeaderCell:last-child {
+  border-right: none;
+}
+
+.tableHeaderButton {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  gap: 2px;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--fg);
+}
+
+.tableHeaderName {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.sortIndicator {
+  font-size: 10px;
+  color: var(--accent);
+}
+
+.typeLabel {
+  font-size: 10px;
+  font-weight: 400;
+  text-transform: lowercase;
+  color: var(--muted);
+}
+
+.resizeHandle {
+  position: absolute;
+  right: -3px;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+  z-index: 1;
+}
+
+.resizeHandle:hover {
+  background: var(--accent);
+  opacity: 0.4;
+}
+
+.tableBody {
+  position: relative;
+}
+
+.tableRow {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+.tableRow.zebra {
+  background: var(--zebra);
+}
+
+.tableCell {
+  flex: none;
+  padding: 6px 10px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-right: 1px solid var(--border);
+}
+
+.tableCell:last-child {
+  border-right: none;
+}
+
+/* Empty state */
+
+.emptyState {
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--muted);
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+}
+
+.sampleChips {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 6px 14px;
+  border: 1px solid var(--chip-border);
+  border-radius: 999px;
+  background: var(--chip-bg);
+  color: var(--fg);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+}
+
+/* Footer */
+
+.siteFooter {
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* How it works page */
+
+.howItWorks {
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.howItWorks ul,
+.howItWorks ol {
+  padding-left: 20px;
+}
+
+.howItWorks li {
+  margin-bottom: 10px;
+}
+
+.howItWorks code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--header-bg);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+}
+
+/* Mobile */
+
+@media (max-width: 700px) {
+  .appShell {
+    padding: 20px 14px 40px;
+  }
+
+  .toolbar {
+    flex-wrap: wrap;
+  }
+
+  .searchInput {
+    width: 100%;
+  }
+
+  .tableWrap {
+    max-height: 50vh;
   }
 }

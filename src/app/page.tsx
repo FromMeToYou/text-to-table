@@ -1,69 +1,162 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
+import DataTable from "@/components/DataTable";
+import DetectionBar from "@/components/DetectionBar";
+import ExportMenu from "@/components/ExportMenu";
+import { SAMPLES } from "@/components/samples";
+import TextInput from "@/components/TextInput";
+import { parseText } from "@/engine";
+import type { Format, ParseResult } from "@/engine/types";
+
+const DEBOUNCE_MS = 300;
+const LARGE_INPUT_BYTES = 10 * 1024 * 1024;
 
 export default function Home() {
+  const [text, setText] = useState("");
+  const [debouncedText, setDebouncedText] = useState("");
+  const [format, setFormat] = useState<Format>("auto");
+  const [headerOverride, setHeaderOverride] = useState<boolean | undefined>(undefined);
+  const [result, setResult] = useState<ParseResult | null>(null);
+  const [parseFailed, setParseFailed] = useState(false);
+  const [search, setSearch] = useState("");
+  const [visibleRows, setVisibleRows] = useState<string[][]>([]);
+
+  const skipNextDebounceRef = useRef(true);
+
+  // Debounce text -> debouncedText, unless a paste/drop asked to skip the wait.
+  useEffect(() => {
+    if (skipNextDebounceRef.current) {
+      skipNextDebounceRef.current = false;
+      setDebouncedText(text);
+      return;
+    }
+    const timer = setTimeout(() => setDebouncedText(text), DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text]);
+
+  // Parse immediately whenever the debounced text, format, or header override changes.
+  useEffect(() => {
+    try {
+      const parsed = parseText(debouncedText, { format, hasHeader: headerOverride });
+      setResult(parsed);
+      setParseFailed(false);
+    } catch {
+      setParseFailed(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedText, format, headerOverride]);
+
+  function handleTextChange(next: string) {
+    setText(next);
+  }
+
+  function handleBeforePaste() {
+    skipNextDebounceRef.current = true;
+  }
+
+  function handleSampleClick(sampleText: string) {
+    skipNextDebounceRef.current = true;
+    setText(sampleText);
+  }
+
+  function handleFormatChange(next: Format) {
+    setFormat(next);
+  }
+
+  function handleHasHeaderChange(next: boolean) {
+    setHeaderOverride(next);
+  }
+
+  const filteredRows = useMemo(() => {
+    if (!result) return [];
+    const q = search.trim().toLowerCase();
+    if (!q) return result.rows;
+    return result.rows.filter((row) => row.some((cell) => cell.toLowerCase().includes(q)));
+  }, [result, search]);
+
+  const exportResult = useMemo<ParseResult | null>(() => {
+    if (!result) return null;
+    return { ...result, rows: visibleRows };
+  }, [result, visibleRows]);
+
+  const hasInput = text.trim().length > 0;
+  const isLargeInput = text.length > LARGE_INPUT_BYTES;
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="appShell">
+      <header className="siteHeader">
+        <h1>Text to Table</h1>
+        <p className="subtitle">Paste any text. It becomes a table.</p>
+        <p className="privacyLine">
+          <span aria-hidden="true">🔒</span> Your data never leaves your browser.
+        </p>
+      </header>
+
+      <main>
+        <TextInput value={text} onChange={handleTextChange} onBeforePaste={handleBeforePaste} />
+
+        {isLargeInput && (
+          <p className="largeInputWarning">
+            That&apos;s a lot of text (10MB+). Parsing will still be attempted, but it may be slow.
           </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+        )}
+
+        {parseFailed ? (
+          <p className="parseError">Could not parse.</p>
+        ) : hasInput && result ? (
+          <>
+            <DetectionBar
+              detectedFormat={result.format}
+              rows={result.rows.length}
+              cols={result.columns.length}
+              formatOverride={format}
+              onFormatChange={handleFormatChange}
+              hasHeader={result.hasHeader}
+              onHasHeaderChange={handleHasHeaderChange}
             />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+            <div className="toolbar">
+              <input
+                type="search"
+                className="searchInput"
+                placeholder="Search…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                aria-label="Search table"
+              />
+              <ExportMenu result={exportResult} />
+            </div>
+
+            <DataTable columns={result.columns} rows={filteredRows} onVisibleRowsChange={setVisibleRows} />
+          </>
+        ) : (
+          <div className="emptyState">
+            <p>Paste terminal output, CSV, TSV, JSON Lines, or any aligned text to see it as a table.</p>
+            <div className="sampleChips">
+              {SAMPLES.map((sample) => (
+                <button
+                  key={sample.label}
+                  type="button"
+                  className="chip"
+                  onClick={() => handleSampleClick(sample.text)}
+                >
+                  {sample.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
+
+      <footer className="siteFooter">
+        <p>
+          Processing happens entirely in your browser. We never see your data.{" "}
+          <Link href="/how-it-works">How this works</Link>
+        </p>
+      </footer>
     </div>
   );
 }
