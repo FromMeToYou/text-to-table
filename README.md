@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Text to Table
 
-## Getting Started
+Paste any text. It becomes a table. Nothing leaves your browser.
 
-First, run the development server:
+Single-page static site: paste terminal output (`kubectl`, `docker ps`, `ps aux`, `df -h`, …), CSV/TSV/semicolon, pipe/Markdown tables or JSON Lines and get an instant sortable, searchable table with CSV / Excel / Markdown / JSON export. All parsing runs client-side; there is no backend.
+
+## Develop
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
+npm test           # engine fixture corpus + unit tests (vitest)
+npm run build      # static export → out/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Layout
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `src/engine/` — pure parsing engine: preprocess → scored format detection → parser → header detection → type inference. `parseText(text) → { format, columns, rows }`. No DOM, no React.
+- `src/engine/export.ts` — CSV/TSV/Markdown/JSON/XLSX.
+- `fixtures/` — real command outputs and sample files with `.expected.json`; every fixture is a regression test.
+- `src/app/`, `src/components/` — the page.
+- `public/_headers` — Cloudflare Pages headers (CSP `connect-src 'self'`).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deploy (Cloudflare Pages)
 
-## Learn More
+Build command `npm run build`, output directory `out`. The `_headers` file is copied into `out/` automatically and enforces the CSP. No environment variables, no server functions.
 
-To learn more about Next.js, take a look at the following resources:
+## Privacy contract
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+No server processing, no error reporting SDK, no external scripts, `connect-src 'self'`. Analytics, if ever added, must be pageview-only and never include input text. See `/how-it-works`.
