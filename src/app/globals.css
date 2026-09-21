@@ -278,13 +278,18 @@ main {
   overflow: auto;
   border: 1px solid var(--border);
   border-radius: 8px;
+  /* A focused header button can otherwise get nudged into view by the
+     browser, visibly shifting the table sideways on click. */
+  overflow-anchor: none;
 }
 
 .tableGrid {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  /* Exactly as wide as its columns — never stretched to fill the wrapper,
+     so a table with a few short columns shows no horizontal scrollbar. */
   width: fit-content;
-  min-width: 100%;
 }
 
 .tableHeaderRow {
@@ -364,6 +369,13 @@ main {
 
 .tableBody {
   position: relative;
+}
+
+.tableEmptyState {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .tableRow {

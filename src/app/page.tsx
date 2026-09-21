@@ -24,6 +24,7 @@ export default function Home() {
   const [visibleRows, setVisibleRows] = useState<string[][]>([]);
 
   const skipNextDebounceRef = useRef(true);
+  const prevColumnSignatureRef = useRef("");
 
   // Debounce text -> debouncedText, unless a paste/drop asked to skip the wait.
   useEffect(() => {
@@ -55,6 +56,9 @@ export default function Home() {
 
   function handleBeforePaste() {
     skipNextDebounceRef.current = true;
+    // A paste/drop replaces the whole buffer; a search or sort left over
+    // from the previous content no longer means anything.
+    setSearch("");
   }
 
   function handleSampleClick(sampleText: string) {
@@ -69,6 +73,22 @@ export default function Home() {
   function handleHasHeaderChange(next: boolean) {
     setHeaderOverride(next);
   }
+
+  // A "different" paste is detected by comparing column *names*, not just
+  // presence of a result: column ids are recycled ("c0", "c1", ...) across
+  // unrelated datasets, so sort/size state keyed by id would otherwise leak
+  // from one paste into the next.
+  const columnSignature = useMemo(
+    () => (result ? result.columns.map((c) => c.name).join("|") : ""),
+    [result]
+  );
+
+  useEffect(() => {
+    if (columnSignature !== prevColumnSignatureRef.current) {
+      prevColumnSignatureRef.current = columnSignature;
+      setSearch("");
+    }
+  }, [columnSignature]);
 
   const filteredRows = useMemo(() => {
     if (!result) return [];
@@ -130,7 +150,16 @@ export default function Home() {
               <ExportMenu result={exportResult} />
             </div>
 
-            <DataTable columns={result.columns} rows={filteredRows} onVisibleRowsChange={setVisibleRows} />
+            <DataTable
+              // Remounts (resetting sort + column sizing) whenever a paste
+              // brings in a genuinely different table shape.
+              key={columnSignature}
+              columns={result.columns}
+              rows={filteredRows}
+              sizingRows={result.rows}
+              emptyMessage={search.trim() ? "No rows match your search." : "No rows to display."}
+              onVisibleRowsChange={setVisibleRows}
+            />
           </>
         ) : (
           <div className="emptyState">
