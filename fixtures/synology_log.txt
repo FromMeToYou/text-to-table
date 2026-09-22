@@ -1,0 +1,8 @@
+2026-09-22T03:04:53+09:00 nas01 summary[2197]: /source/synofoto/src/backup/summary.cpp:23 Hyperbackup framework version = 2.6
+2026-09-22T03:08:00+09:00 nas01 export[4184]: /source/synofoto/src/backup/export.cpp:56 Hyperbackup framework version = 2.6
+2026-09-22T03:08:02+09:00 nas01 export[4184]: /source/synofoto/src/backup/export.cpp:72 Exported (backup) data version = 150.0
+2026-09-22T09:40:31+09:00 nas01 synowebservice_SYNO.Docker.Registry_2_tags[12077]: util.cpp:299 Fail to query url=https://hub.docker.com/v2/namespaces/library/repositories/joomla/tags?page=11&page_size=100, CURLcode=22, err=Error
+2026-09-22T09:40:31+09:00 nas01 synowebservice_SYNO.Docker.Registry_2_tags[12077]: util.cpp:301 httpCode=403
+2026-09-22T09:40:31+09:00 nas01 synowebservice[12077]: synowebservice.cpp:1274 Failed to run SYNO.Docker.Registry.tags
+2026-09-22T09:55:42+09:00 nas01 synocrtregister[25863]: synocrtregister.cpp:302 Register certificate for ReverseProxy/02562f71-6f0c-49a3-8610-5b6dd50c3794
+2026-09-22T15:10:17+09:00 nas01 synocgid[15096]: session/timeout.cpp:74 goofy2 has session timeout.

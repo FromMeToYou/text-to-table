@@ -1,0 +1,22 @@
+{
+  "format": "syslog",
+  "hasHeader": true,
+  "columns": [
+    "Time",
+    "Host",
+    "Process",
+    "PID",
+    "Message"
+  ],
+  "rowCount": 8,
+  "sample": {
+    "row": 3,
+    "cells": [
+      "2026-09-22T09:40:31+09:00",
+      "nas01",
+      "synowebservice_SYNO.Docker.Registry_2_tags",
+      "12077",
+      "util.cpp:299 Fail to query url=https://hub.docker.com/v2/namespaces/library/repositories/joomla/tags?page=11&page_size=100, CURLcode=22, err=Error"
+    ]
+  }
+}

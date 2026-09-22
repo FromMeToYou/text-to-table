@@ -1,14 +1,22 @@
 {
-  "format": "none",
-  "hasHeader": false,
+  "format": "syslog",
+  "hasHeader": true,
   "columns": [
-    "Column 1"
+    "Time",
+    "Host",
+    "Process",
+    "PID",
+    "Message"
   ],
   "rowCount": 3,
   "sample": {
-    "row": 0,
+    "row": 2,
     "cells": [
-      "Sep 21 10:23:01 macbook kernel[0]: AppleACPICPU: ProcessorId=1 LocalApicId=2 Enabled"
+      "Sep 21 10:24:11",
+      "macbook",
+      "sudo",
+      "4821",
+      "wonkyu : TTY=ttys003 ; PWD=/Users/wonkyu ; USER=root"
     ]
   }
 }

@@ -78,6 +78,24 @@ function parsePipe(lines: string[]): string[][] {
   });
 }
 
+// ponytail: one regex covers BSD ("Sep 21 10:23:01") and ISO/RFC 5424 timestamps
+// followed by host, process[pid] and message. Process is lazy so an unusual token like
+// "launchd[1] (com.apple.foo)" lands whole in Process instead of being dropped.
+const SYSLOG_RE =
+  /^(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?|[A-Z][a-z]{2} {1,2}\d{1,2} \d{2}:\d{2}:\d{2})\s+(\S+)\s+(.+?)(?:\[(\d+)\])?:\s+(.*)$/;
+const SYSLOG_NAMES = ["Time", "Host", "Process", "PID", "Message"];
+
+function parseSyslog(lines: string[]): { grid: string[][]; ok: number } {
+  let ok = 0;
+  const grid = lines.map((line) => {
+    const m = SYSLOG_RE.exec(line);
+    if (!m) return ["", "", "", "", line];
+    ok++;
+    return [m[1], m[2], m[3], m[4] ?? "", m[5]];
+  });
+  return { grid, ok };
+}
+
 function parseJsonl(lines: string[]): { names: string[]; grid: string[][]; ok: number } {
   const names: string[] = [];
   const objects: Record<string, unknown>[] = [];
@@ -132,6 +150,17 @@ function buildCandidate(format: Detected, pre: Preprocessed): Candidate | null {
         consistency: pre.lines.length === 0 ? 0 : jsonl.ok / pre.lines.length,
       };
     }
+    case "syslog": {
+      const sys = parseSyslog(pre.lines);
+      if (sys.ok === 0) return null;
+      return {
+        format,
+        weight: 1.0,
+        grid: sys.grid,
+        names: SYSLOG_NAMES,
+        consistency: sys.ok / pre.lines.length,
+      };
+    }
     case "aligned": {
       const aligned = parseAligned(pre.lines);
       if (!aligned) return null;
@@ -145,7 +174,7 @@ function buildCandidate(format: Detected, pre: Preprocessed): Candidate | null {
   }
 }
 
-const ALL_FORMATS: Detected[] = ["tab", "comma", "semicolon", "pipe", "jsonl", "aligned"];
+const ALL_FORMATS: Detected[] = ["tab", "comma", "semicolon", "pipe", "jsonl", "syslog", "aligned"];
 
 /** Lines used to pick a format. Detection needs a sample, not the whole input. */
 const DETECT_SAMPLE_LINES = 200;
