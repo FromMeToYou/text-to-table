@@ -110,36 +110,56 @@ function stringifyCell(v: unknown): string {
   return JSON.stringify(v);
 }
 
-function candidates(pre: Preprocessed): Candidate[] {
-  const out: Candidate[] = [
-    { format: "tab", weight: 1.0, grid: pre.lines.map((l) => l.split("\t")) },
-    { format: "comma", weight: 0.8, grid: papa(pre.csvText, ",") },
-    { format: "semicolon", weight: 0.9, grid: papa(pre.csvText, ";") },
-    { format: "pipe", weight: 1.0, grid: parsePipe(pre.lines) },
-  ];
-  const jsonl = parseJsonl(pre.lines);
-  if (jsonl.names.length > 0) {
-    out.push({
-      format: "jsonl",
-      weight: 1.0,
-      grid: jsonl.grid,
-      names: jsonl.names,
-      consistency: pre.lines.length === 0 ? 0 : jsonl.ok / pre.lines.length,
-    });
+/** Build one candidate parse for `format`, or null when the format doesn't apply. */
+function buildCandidate(format: Detected, pre: Preprocessed): Candidate | null {
+  switch (format) {
+    case "tab":
+      return { format, weight: 1.0, grid: pre.lines.map((l) => l.split("\t")) };
+    case "comma":
+      return { format, weight: 0.8, grid: papa(pre.csvText, ",") };
+    case "semicolon":
+      return { format, weight: 0.9, grid: papa(pre.csvText, ";") };
+    case "pipe":
+      return { format, weight: 1.0, grid: parsePipe(pre.lines) };
+    case "jsonl": {
+      const jsonl = parseJsonl(pre.lines);
+      if (jsonl.names.length === 0) return null;
+      return {
+        format,
+        weight: 1.0,
+        grid: jsonl.grid,
+        names: jsonl.names,
+        consistency: pre.lines.length === 0 ? 0 : jsonl.ok / pre.lines.length,
+      };
+    }
+    case "aligned": {
+      const aligned = parseAligned(pre.lines);
+      if (!aligned) return null;
+      // ponytail: the aligned parser always returns a rectangle, so plain column-count
+      // consistency would be a constant 1.0 and say nothing. Its own alignment/fill
+      // quality is the honest stand-in.
+      return { format, weight: 0.7, grid: aligned.rows, consistency: aligned.quality };
+    }
+    default:
+      return null;
   }
-  const aligned = parseAligned(pre.lines);
-  if (aligned) {
-    // ponytail: the aligned parser always returns a rectangle, so plain column-count
-    // consistency would be a constant 1.0 and say nothing. Its own alignment/fill
-    // quality is the honest stand-in.
-    out.push({
-      format: "aligned",
-      weight: 0.7,
-      grid: aligned.rows,
-      consistency: aligned.quality,
-    });
-  }
-  return out;
+}
+
+const ALL_FORMATS: Detected[] = ["tab", "comma", "semicolon", "pipe", "jsonl", "aligned"];
+
+/** Lines used to pick a format. Detection needs a sample, not the whole input. */
+const DETECT_SAMPLE_LINES = 200;
+
+function sample(pre: Preprocessed): Preprocessed {
+  if (pre.lines.length <= DETECT_SAMPLE_LINES) return pre;
+  // ponytail: csvText keeps interior blanks, so cut it by raw lines (a bit more than
+  // the sample) rather than mapping indices; a quoted newline split at the cut only
+  // dents the sample's score, never the final parse.
+  const csvLines = pre.csvText.split("\n");
+  return {
+    lines: pre.lines.slice(0, DETECT_SAMPLE_LINES),
+    csvText: csvLines.slice(0, DETECT_SAMPLE_LINES + 20).join("\n"),
+  };
 }
 
 function score(c: Candidate): number {
@@ -239,18 +259,21 @@ export function parseText(text: string, opts: ParseOptions = {}): ParseResult {
       };
     }
 
-    const all = candidates(pre);
     const forced = opts.format && opts.format !== "auto" ? opts.format : undefined;
     if (forced) {
       if (forced === "none") return fallback(pre.lines);
-      const picked = all.find((c) => c.format === forced);
+      const picked = buildCandidate(forced, pre);
       if (!picked) return fallback(pre.lines);
       return assemble(forced, picked.grid, score(picked), opts, picked.names);
     }
 
+    // Score every format on a sample, then run only the winner on the full input.
+    const pre200 = sample(pre);
     let best: Candidate | null = null;
     let bestScore = 0;
-    for (const c of all) {
+    for (const f of ALL_FORMATS) {
+      const c = buildCandidate(f, pre200);
+      if (!c) continue;
       const s = score(c);
       // Ties go to the higher reliability weight.
       if (s > bestScore || (s === bestScore && best !== null && c.weight > best.weight)) {
@@ -259,7 +282,9 @@ export function parseText(text: string, opts: ParseOptions = {}): ParseResult {
       }
     }
     if (!best || bestScore < 0.5) return fallback(pre.lines);
-    return assemble(best.format, best.grid, bestScore, opts, best.names);
+    const full = pre200 === pre ? best : buildCandidate(best.format, pre);
+    if (!full) return fallback(pre.lines);
+    return assemble(best.format, full.grid, bestScore, opts, full.names);
   } catch {
     // Never throw: worst case is a one-column table.
     const lines = (text ?? "").split(/\r?\n/).filter((l) => l.trim() !== "");

@@ -11,7 +11,24 @@ import { parseText } from "@/engine";
 import type { Format, ParseResult } from "@/engine/types";
 
 const DEBOUNCE_MS = 300;
-const LARGE_INPUT_BYTES = 10 * 1024 * 1024;
+// ponytail: parsing is synchronous on the main thread; these caps keep it near 1s
+// (100k aligned rows ≈ 1.1s). Move parsing to a Web Worker if the cap has to grow.
+const MAX_LINES = 100_000;
+const MAX_BYTES = 5 * 1024 * 1024;
+
+/** Keep only the head of oversized input; report how many lines the full text had. */
+function capInput(raw: string): { text: string; totalLines: number; keptLines: number } {
+  let lines = 0;
+  let cut = -1;
+  for (let i = raw.indexOf("\n"); i !== -1; i = raw.indexOf("\n", i + 1)) {
+    lines++;
+    if (cut === -1 && (lines === MAX_LINES || i >= MAX_BYTES)) cut = i;
+  }
+  const totalLines = raw.length === 0 ? 0 : lines + (raw.endsWith("\n") ? 0 : 1);
+  if (cut === -1) return { text: raw, totalLines, keptLines: totalLines };
+  const kept = raw.slice(0, cut);
+  return { text: kept, totalLines, keptLines: kept.split("\n").length };
+}
 
 export default function Home() {
   const [text, setText] = useState("");
@@ -21,6 +38,7 @@ export default function Home() {
   const [result, setResult] = useState<ParseResult | null>(null);
   const [parseFailed, setParseFailed] = useState(false);
   const [search, setSearch] = useState("");
+  const [truncation, setTruncation] = useState<{ totalLines: number; keptLines: number } | null>(null);
   const [visibleRows, setVisibleRows] = useState<string[][]>([]);
 
   const skipNextDebounceRef = useRef(true);
@@ -51,7 +69,9 @@ export default function Home() {
   }, [debouncedText, format, headerOverride]);
 
   function handleTextChange(next: string) {
-    setText(next);
+    const capped = capInput(next);
+    setText(capped.text);
+    setTruncation(capped.text === next ? null : { totalLines: capped.totalLines, keptLines: capped.keptLines });
   }
 
   function handleBeforePaste() {
@@ -103,7 +123,6 @@ export default function Home() {
   }, [result, visibleRows]);
 
   const hasInput = text.trim().length > 0;
-  const isLargeInput = text.length > LARGE_INPUT_BYTES;
 
   return (
     <div className="appShell">
@@ -118,9 +137,11 @@ export default function Home() {
       <main>
         <TextInput value={text} onChange={handleTextChange} onBeforePaste={handleBeforePaste} />
 
-        {isLargeInput && (
-          <p className="largeInputWarning">
-            That&apos;s a lot of text (10MB+). Parsing will still be attempted, but it may be slow.
+        {truncation && (
+          <p className="largeInputWarning" role="status">
+            Showing the first {truncation.keptLines.toLocaleString()} of{" "}
+            {truncation.totalLines.toLocaleString()} lines. Input is capped at{" "}
+            {MAX_LINES.toLocaleString()} lines or {MAX_BYTES / 1024 / 1024} MB so the page stays responsive.
           </p>
         )}
 
