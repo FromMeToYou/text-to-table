@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "vitest run"
+    "test": "vitest run",
+    "deploy": "./deploy.sh"
   },
   "dependencies": {
     "@tanstack/react-table": "^9.2.4",

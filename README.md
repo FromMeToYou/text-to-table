@@ -21,7 +21,11 @@ npm run build      # static export → out/
 - `src/app/`, `src/components/` — the page.
 - `public/_headers` — Cloudflare Pages headers (CSP `connect-src 'self'`).
 
-## Deploy (Cloudflare Pages)
+## Deploy
+
+Live: https://frommetoyou.github.io/text-to-table/ (GitHub Pages, `npm run deploy`). CSP is enforced by an in-page meta tag so it holds on any static host.
+
+### Cloudflare Pages (alternative)
 
 Build command `npm run build`, output directory `out`. The `_headers` file is copied into `out/` automatically and enforces the CSP. No environment variables, no server functions.
 
