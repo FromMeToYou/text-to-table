@@ -1,0 +1,20 @@
+{
+  "format": "space",
+  "hasHeader": true,
+  "columns": [
+    "Time",
+    "Level",
+    "Column 3",
+    "Message"
+  ],
+  "rowCount": 5,
+  "sample": {
+    "row": 0,
+    "cells": [
+      "2026-09-21 10:00:01,123",
+      "INFO",
+      "mymodule",
+      "worker started with 4 threads"
+    ]
+  }
+}

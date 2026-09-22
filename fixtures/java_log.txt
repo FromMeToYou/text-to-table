@@ -1,0 +1,5 @@
+2026-09-21T10:00:01.123Z ERROR [main] com.foo.Bar - database connection refused
+2026-09-21T10:00:02.881Z INFO [main] com.foo.App - started in 4.21s
+2026-09-21T10:00:03.014Z WARN [pool-1-thread-2] com.foo.Job - retry 1 of 3
+2026-09-21T10:00:09.402Z ERROR [pool-1-thread-2] com.foo.Job - job aborted after 3 retries
+2026-09-21T10:00:12.700Z DEBUG [main] com.foo.Bar - cache warmed with 1200 entries

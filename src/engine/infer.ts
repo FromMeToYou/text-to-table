@@ -13,8 +13,11 @@ const DURATION_RE = /^(?:\d+(?:\.\d+)?(?:ns|us|ms|[dhms]))+$/;
 const CLOCK_RE = /^\d{1,6}:[0-5]\d(?::[0-5]\d)?(?:\.\d+)?$/;
 const RATIO_RE = /^\d+\/\d+$/;
 const ISO_RE =
-  /^\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)?$/;
+  /^\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2})?(?:[.,]\d+)?(?:Z|[+-]\d{2}:?\d{2})?)?$/;
 const SYSLOG_RE = /^([A-Z][a-z]{2}) {1,2}(\d{1,2}) (\d{2}):(\d{2}):(\d{2})$/;
+// Common Log Format timestamp, brackets and all: [21/Sep/2026:10:00:00 +0900]
+const CLF_RE =
+  /^\[?(\d{1,2})\/([A-Z][a-z]{2})\/(\d{4}):(\d{2}):(\d{2}):(\d{2}) ([+-])(\d{2})(\d{2})\]?$/;
 const IP_RE = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
 
 const KI = 1024;
@@ -47,7 +50,7 @@ export function matchesType(value: string, type: ColumnType): boolean {
     case "size": return SIZE_RE.test(v) || NUMBER_RE.test(v);
     case "duration": return DURATION_RE.test(v) || CLOCK_RE.test(v);
     case "ratio": return RATIO_RE.test(v);
-    case "datetime": return ISO_RE.test(v) || SYSLOG_RE.test(v);
+    case "datetime": return ISO_RE.test(v) || SYSLOG_RE.test(v) || CLF_RE.test(v);
     case "ip": return isIp(v);
     case "string": return true;
   }
@@ -99,6 +102,16 @@ function sizeBytes(v: string): number {
 }
 
 function datetimeMs(v: string): number {
+  const c = CLF_RE.exec(v);
+  if (c) {
+    const month = MONTHS.indexOf(c[2]);
+    if (month < 0) return NaN;
+    const offset = (Number(c[8]) * 60 + Number(c[9])) * (c[7] === "-" ? -1 : 1);
+    return (
+      Date.UTC(Number(c[3]), month, Number(c[1]), Number(c[4]), Number(c[5]), Number(c[6])) -
+      offset * 60000
+    );
+  }
   const s = SYSLOG_RE.exec(v);
   if (s) {
     // ponytail: syslog omits the year; pin it to 1970 so sorting is stable and
@@ -107,7 +120,8 @@ function datetimeMs(v: string): number {
     if (month < 0) return NaN;
     return Date.UTC(1970, month, Number(s[2]), Number(s[3]), Number(s[4]), Number(s[5]));
   }
-  const t = Date.parse(v.includes("T") || v.length <= 10 ? v : v.replace(" ", "T"));
+  const iso = v.replace(",", ".");
+  const t = Date.parse(iso.includes("T") || iso.length <= 10 ? iso : iso.replace(" ", "T"));
   return Number.isNaN(t) ? NaN : t;
 }
 

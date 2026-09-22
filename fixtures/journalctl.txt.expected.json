@@ -8,15 +8,15 @@
     "ID",
     "Message"
   ],
-  "rowCount": 3,
+  "rowCount": 5,
   "sample": {
     "row": 2,
     "cells": [
-      "Sep 21 10:24:11",
-      "macbook",
-      "sudo",
-      "4821",
-      "wonkyu : TTY=ttys003 ; PWD=/Users/wonkyu ; USER=root"
+      "Sep 21 10:23:44",
+      "nuc01",
+      "sshd",
+      "20481",
+      "Accepted publickey for wonkyu from 192.168.0.4 port 51244 ssh2"
     ]
   }
 }

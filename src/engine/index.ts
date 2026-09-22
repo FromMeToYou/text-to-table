@@ -5,6 +5,7 @@
  */
 import Papa from "papaparse";
 import { parseAligned } from "./aligned";
+import { parseSpace } from "./space";
 import { cellType, inferColumnType } from "./infer";
 import type { Column, ColumnType, Format, ParseOptions, ParseResult } from "./types";
 
@@ -78,24 +79,6 @@ function parsePipe(lines: string[]): string[][] {
   });
 }
 
-// ponytail: one regex covers BSD ("Sep 21 10:23:01") and ISO/RFC 5424 timestamps
-// followed by host, process[pid] and message. Process is lazy so an unusual token like
-// "launchd[1] (com.apple.foo)" lands whole in Process instead of being dropped.
-const SYSLOG_RE =
-  /^(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?|[A-Z][a-z]{2} {1,2}\d{1,2} \d{2}:\d{2}:\d{2})\s+(\S+)\s+(.+?)(?:\[(\d+)\])?:\s+(.*)$/;
-const SYSLOG_NAMES = ["Time", "Host", "Process", "PID", "Message"];
-
-function parseSyslog(lines: string[]): { grid: string[][]; ok: number } {
-  let ok = 0;
-  const grid = lines.map((line) => {
-    const m = SYSLOG_RE.exec(line);
-    if (!m) return ["", "", "", "", line];
-    ok++;
-    return [m[1], m[2], m[3], m[4] ?? "", m[5]];
-  });
-  return { grid, ok };
-}
-
 function parseJsonl(lines: string[]): { names: string[]; grid: string[][]; ok: number } {
   const names: string[] = [];
   const objects: Record<string, unknown>[] = [];
@@ -128,13 +111,33 @@ function stringifyCell(v: unknown): string {
   return JSON.stringify(v);
 }
 
+/**
+ * A comma that is the line's only comma and always sits between two digits is a
+ * decimal mark, not a delimiter: "2026-09-21 10:00:01,123 INFO ...". Papa still
+ * reports a perfectly consistent 2-column split, so trim the confidence and let
+ * a parser that reads the whole line win.
+ * ponytail: ceiling is a genuine two-column all-numeric CSV ("1,2"). It keeps
+ * 0.56, which still beats every other candidate on that input.
+ */
+const DECIMAL_COMMA = /(?<=\d),(?=\d)/;
+function commaConsistency(lines: string[], grid: string[][]): number {
+  const { fraction } = modalCount(grid);
+  const singles = lines.filter((l) => {
+    const commas = l.split(",").length - 1;
+    return commas === 1 && DECIMAL_COMMA.test(l);
+  }).length;
+  return singles / Math.max(lines.length, 1) >= 0.9 ? fraction * 0.7 : fraction;
+}
+
 /** Build one candidate parse for `format`, or null when the format doesn't apply. */
 function buildCandidate(format: Detected, pre: Preprocessed): Candidate | null {
   switch (format) {
     case "tab":
       return { format, weight: 1.0, grid: pre.lines.map((l) => l.split("\t")) };
-    case "comma":
-      return { format, weight: 0.8, grid: papa(pre.csvText, ",") };
+    case "comma": {
+      const grid = papa(pre.csvText, ",");
+      return { format, weight: 0.8, grid, consistency: commaConsistency(pre.lines, grid) };
+    }
     case "semicolon":
       return { format, weight: 0.9, grid: papa(pre.csvText, ";") };
     case "pipe":
@@ -150,16 +153,13 @@ function buildCandidate(format: Detected, pre: Preprocessed): Candidate | null {
         consistency: pre.lines.length === 0 ? 0 : jsonl.ok / pre.lines.length,
       };
     }
-    case "syslog": {
-      const sys = parseSyslog(pre.lines);
-      if (sys.ok === 0) return null;
-      return {
-        format,
-        weight: 1.0,
-        grid: sys.grid,
-        names: SYSLOG_NAMES,
-        consistency: sys.ok / pre.lines.length,
-      };
+    case "space": {
+      const sp = parseSpace(pre.lines);
+      if (!sp) return null;
+      // ponytail: 0.65 sits under `aligned` (0.7) on purpose. Where a terminal
+      // table parses cleanly by character position, that reading wins; `space`
+      // is for lines that only whitespace holds together.
+      return { format, weight: 0.65, grid: sp.grid, names: sp.names, consistency: sp.consistency };
     }
     case "aligned": {
       const aligned = parseAligned(pre.lines);
@@ -174,7 +174,7 @@ function buildCandidate(format: Detected, pre: Preprocessed): Candidate | null {
   }
 }
 
-const ALL_FORMATS: Detected[] = ["tab", "comma", "semicolon", "pipe", "jsonl", "syslog", "aligned"];
+const ALL_FORMATS: Detected[] = ["tab", "comma", "semicolon", "pipe", "jsonl", "space", "aligned"];
 
 /** Lines used to pick a format. Detection needs a sample, not the whole input. */
 const DETECT_SAMPLE_LINES = 200;
@@ -270,6 +270,15 @@ function assemble(
     name: hasHeader || presetNames ? name : `Column ${j + 1}`,
     type: inferColumnType(body.map((r) => r[j])) as ColumnType,
   }));
+  // A generated name on a datetime column says nothing; call it Time.
+  // ponytail: only auto-generated "Column N" names are renamed, never user headers.
+  let timeIdx = 0;
+  for (const c of columns) {
+    if (c.type === "datetime" && /^Column \d+$/.test(c.name)) {
+      c.name = timeIdx === 0 ? "Time" : `Time ${timeIdx + 1}`;
+      timeIdx++;
+    }
+  }
 
   return { format, hasHeader, columns, rows: body, confidence };
 }

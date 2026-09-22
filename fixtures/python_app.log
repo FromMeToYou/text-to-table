@@ -1,0 +1,5 @@
+2026-09-21 10:00:01,123 INFO mymodule: worker started with 4 threads
+2026-09-21 10:00:02,455 DEBUG mymodule.cache: cache miss for key user:4821
+2026-09-21 10:00:04,900 WARNING db.pool: connection pool at 90% capacity
+2026-09-21 10:00:07,012 ERROR db.pool: could not acquire connection after 5s
+2026-09-21 10:00:07,880 INFO mymodule: retrying in 2 seconds

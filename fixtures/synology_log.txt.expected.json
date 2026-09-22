@@ -1,11 +1,11 @@
 {
-  "format": "syslog",
+  "format": "space",
   "hasHeader": true,
   "columns": [
     "Time",
-    "Host",
-    "Process",
-    "PID",
+    "Column 2",
+    "Column 3",
+    "ID",
     "Message"
   ],
   "rowCount": 8,

@@ -1,0 +1,5 @@
+Sep 21 10:23:01 nuc01 systemd[1]: Started Daily apt download activities.
+Sep 21 10:23:01 nuc01 systemd[1]: apt-daily.service: Deactivated successfully.
+Sep 21 10:23:44 nuc01 sshd[20481]: Accepted publickey for wonkyu from 192.168.0.4 port 51244 ssh2
+Sep 21 10:24:02 nuc01 kernel[0]: usb 1-3: new high-speed USB device number 7
+Sep 21 10:25:19 nuc01 dockerd[1188]: time="2026-09-21T10:25:19Z" level=info msg="container start"

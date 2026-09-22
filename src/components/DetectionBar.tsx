@@ -10,7 +10,7 @@ export const FORMAT_LABELS: Record<Exclude<Format, "auto">, string> = {
   pipe: "Pipe / Markdown table",
   aligned: "Aligned columns",
   jsonl: "JSON Lines",
-  syslog: "Syslog",
+  space: "Space-separated",
   none: "Plain text",
 };
 
@@ -22,7 +22,7 @@ const FORMAT_OPTIONS: { value: Format; label: string }[] = [
   { value: "pipe", label: "Pipe" },
   { value: "aligned", label: "Aligned columns" },
   { value: "jsonl", label: "JSONL" },
-  { value: "syslog", label: "Syslog" },
+  { value: "space", label: "Spaces" },
 ];
 
 interface DetectionBarProps {

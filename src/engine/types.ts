@@ -8,7 +8,7 @@ export type Format =
   | "pipe"
   | "aligned"
   | "jsonl"
-  | "syslog"
+  | "space"
   | "none";
 
 export type ColumnType =
